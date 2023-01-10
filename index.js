@@ -26,12 +26,29 @@ async function run() {
     const productsCollection = client
       .db("shop-adidas-db")
       .collection("all-products");
-    //read
+    const categoriesCollection = client
+      .db("shop-adidas-db")
+      .collection("categories");
+    //read all products data
     app.get("/products", async (req, res) => {
       const query = {};
       const cursor = productsCollection.find(query);
       const products = await cursor.toArray();
       res.send(products);
+    });
+    //read categories data
+    app.get("/categories", async (req, res) => {
+      const query = {};
+      const cursor = categoriesCollection.find(query);
+      const categories = await cursor.toArray();
+      res.send(categories);
+    });
+    //read categories data
+    app.get("/categories/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { category_id: id };
+      const result = await productsCollection.find(query).toArray();
+      res.send(result);
     });
   } finally {
     //don't add close()
