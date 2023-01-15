@@ -21,6 +21,7 @@ const client = new MongoClient(uri, {
 });
 
 // add below codes
+// https://shop-adidas.vercel.app
 async function run() {
   try {
     const productsCollection = client
