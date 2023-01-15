@@ -39,7 +39,7 @@ async function run() {
     //read categories data
     app.get("/categories", async (req, res) => {
       const query = {};
-      const cursor = categoriesCollection.find(query);
+      const cursor = categoriesCollection.find(query).sort({ id: 1 });
       const categories = await cursor.toArray();
       res.send(categories);
     });
