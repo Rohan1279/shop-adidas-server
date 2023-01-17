@@ -30,6 +30,10 @@ async function run() {
     const categoriesCollection = client
       .db("shop-adidas-db")
       .collection("categories");
+    const adidasSneakers04 = client
+      .db("shop-adidas-db")
+      .collection("adidas-sneakers-04");
+
     //read all products data
     app.get("/products", async (req, res) => {
       const query = {};
@@ -51,6 +55,52 @@ async function run() {
       const result = await productsCollection.find(query).toArray();
       res.send(result);
     });
+    // temporary to add property
+    // app.get("/addData/colors", async (req, res) => {
+    //   const filter = {};
+    //   const options = { upsert: true };
+    //   const updatedDoc = {
+    //     $set: {
+    //       color: "",
+    //     },
+    //   };
+    //   const result = await productsCollection.updateMany(
+    //     filter,
+    //     updatedDoc,
+    //     options
+    //   );
+    //   res.send(result);
+    // });
+
+    // update property value matched with other property name
+    app.get("/update/color", async (req, res) => {
+      const query = {};
+      const cursor = adidasSneakers04.find(query);
+      const result1 = await cursor.toArray();
+
+      for (const item of result1) {
+        const result = await productsCollection.updateOne(
+          { productLinkHref: item.productLinkHref },
+          {
+            $set: {
+              color: item.color,
+            },
+          },
+          { upsert: true }
+        );
+
+        res.send(result);
+      }
+    });
+    // renames property name in an object
+    // app.patch("/rename-property", async (req, res) => {
+    //   const result = await productsCollection.updateMany(
+    //     {},
+    //     { $rename: { "product-link-href": "productLinkHref" } }
+    //   );
+    //   console.log(result);
+    //   res.send(result);
+    // });
   } finally {
     //don't add close()
   }
