@@ -73,25 +73,25 @@ async function run() {
     // });
 
     // update property value matched with other property name
-    app.get("/update/color", async (req, res) => {
-      const query = {};
-      const cursor = adidasSneakers04.find(query);
-      const result1 = await cursor.toArray();
+    // app.get("/update/color", async (req, res) => {
+    //   const query = {};
+    //   const cursor = adidasSneakers04.find(query);
+    //   const result1 = await cursor.toArray();
+    //   for (const item of result1) {
+    //     const result = await productsCollection.updateOne(
+    //       { productLinkHref: item.productLinkHref },
+    //       {
+    //         $set: {
+    //           color: item.color,
+    //         },
+    //       },
+    //       { upsert: true }
+    //     );
 
-      for (const item of result1) {
-        const result = await productsCollection.updateOne(
-          { productLinkHref: item.productLinkHref },
-          {
-            $set: {
-              color: item.color,
-            },
-          },
-          { upsert: true }
-        );
+    //   //  console.log(result);
+    //   }
+    // });
 
-        res.send(result);
-      }
-    });
     // renames property name in an object
     // app.patch("/rename-property", async (req, res) => {
     //   const result = await productsCollection.updateMany(
