@@ -61,7 +61,8 @@ async function run() {
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
-      const filter = { email: email };
+      const userRole = user?.userRole;
+      const filter = { email: email, userRole: userRole };
       const options = { upsert: true };
       const updatedDoc = {
         $set: user,
