@@ -33,7 +33,8 @@ async function run() {
     const adidasSneakers04 = client
       .db("shop-adidas-db")
       .collection("adidas-sneakers-04");
-
+    const usersCollection = client.db("shop-adidas-db").collection("users");
+    //! GET
     //read all products data
     app.get("/products", async (req, res) => {
       const query = {};
@@ -53,6 +54,16 @@ async function run() {
       const id = req.params.id;
       const query = { category_id: id };
       const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    });
+    // ! POST
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      let userData = { ...user };
+      if (user.userRole === "Seller") {
+        userData = { ...user, isSellerVerified: false };
+      }
+      const result = await usersCollection.insertOne(userData);
       res.send(result);
     });
     // temporary to add property
