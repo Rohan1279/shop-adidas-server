@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const app = express();
 const port = process.env.port || 5000;
 require("dotenv").config();
@@ -57,14 +58,26 @@ async function run() {
       res.send(result);
     });
     // ! POST
-    app.post("/users", async (req, res) => {
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
       const user = req.body;
-      let userData = { ...user };
-      if (user.userRole === "Seller") {
-        userData = { ...user, isSellerVerified: false };
-      }
-      const result = await usersCollection.insertOne(userData);
-      res.send(result);
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      console.log(result);
+
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+        expiresIn: "1d",
+      });
+      console.log(token);
+      res.send({ result, token });
     });
     // temporary to add property
     // app.get("/addData/colors", async (req, res) => {
