@@ -71,12 +71,12 @@ async function run() {
         updatedDoc,
         options
       );
-      console.log(result);
+      // console.log(result);
 
       const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
         expiresIn: "1d",
       });
-      console.log(token);
+      // console.log(token);
       res.send({ result, token });
     });
     // temporary to add property
