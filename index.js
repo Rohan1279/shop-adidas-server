@@ -57,28 +57,39 @@ async function run() {
       const result = await productsCollection.find(query).toArray();
       res.send(result);
     });
+    app.get("/users/buyer/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isBuyer: user?.userRole === "Buyer" });
+    });
     // ! POST
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const userRole = user?.userRole;
-      const filter = { email: email, userRole: userRole };
+      const filter = { email: email };
       const options = { upsert: true };
       const updatedDoc = {
         $set: user,
       };
-      const result = await usersCollection.updateOne(
-        filter,
-        updatedDoc,
-        options
-      );
-      // console.log(result);
+      const query = { email: email };
 
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
-        expiresIn: "1d",
-      });
-      // console.log(token);
-      res.send({ result, token });
+      const isExistingUser = await usersCollection.find(query).toArray();
+      console.log(isExistingUser[0]?.userRole);
+      let result = {};
+      if (
+        isExistingUser.length === 0 ||
+        isExistingUser[0]?.userRole === userRole
+      ) {
+        result = await usersCollection.updateOne(filter, updatedDoc, options);
+        const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+          expiresIn: "1d",
+        });
+        res.send({ result, token });
+      }
+      // console.log(res);
+      else res.status(409).send({ message: "Email already in use" });
     });
     // temporary to add property
     // app.get("/addData/colors", async (req, res) => {
