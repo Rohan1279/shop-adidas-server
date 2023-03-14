@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 const app = express();
 const port = process.env.port || 5000;
 require("dotenv").config();
@@ -73,33 +73,33 @@ async function run() {
       res.send({ isSeller: user?.userRole === "Seller", user: user });
     });
     // ! POST
-    app.put("/user/:email", async (req, res) => {
-      const email = req.params.email;
-      const user = req.body;
-      const userRole = user?.userRole;
-      const filter = { email: email };
-      const options = { upsert: true };
-      const updatedDoc = {
-        $set: user,
-      };
-      const query = { email: email };
+    // app.put("/user/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const user = req.body;
+    //   const userRole = user?.userRole;
+    //   const filter = { email: email };
+    //   const options = { upsert: true };
+    //   const updatedDoc = {
+    //     $set: user,
+    //   };
+    //   const query = { email: email };
 
-      const isExistingUser = await usersCollection.find(query).toArray();
-      console.log(isExistingUser[0]?.userRole);
-      let result = {};
-      if (
-        isExistingUser.length === 0 ||
-        isExistingUser[0]?.userRole === userRole
-      ) {
-        result = await usersCollection.updateOne(filter, updatedDoc, options);
-        const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
-          expiresIn: "1d",
-        });
-        res.send({ result, token });
-      }
-      // console.log(res);
-      else res.status(409).send({ message: "Email already in use" });
-    });
+    //   const isExistingUser = await usersCollection.find(query).toArray();
+    //   console.log(isExistingUser[0]?.userRole);
+    //   let result = {};
+    //   if (
+    //     isExistingUser.length === 0 ||
+    //     isExistingUser[0]?.userRole === userRole
+    //   ) {
+    //     result = await usersCollection.updateOne(filter, updatedDoc, options);
+    //     const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+    //       expiresIn: "1d",
+    //     });
+    //     res.send({ result, token });
+    //   }
+    //   // console.log(res);
+    //   else res.status(409).send({ message: "Email already in use" });
+    // });
     // temporary to add property
     // app.get("/addData/colors", async (req, res) => {
     //   const filter = {};
