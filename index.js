@@ -164,3 +164,5 @@ app.listen(port, () => {
   });
   console.log(`simple node server running on port ${port}`);
 });
+// Export the Express API
+module.exports = app;
