@@ -69,7 +69,7 @@ async function run() {
     });
     app.get("/users", async (req, res) => {
       const email = req.query.email;
-      const query = { email: email };
+      const query = { email };
       const user = await usersCollection.findOne(query);
       if (user) {
         return res.send({ user: user });
