@@ -67,7 +67,16 @@ async function run() {
         isSeller: user?.userRole === "Seller",
       });
     });
-
+    app.get("/users", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      if (user) {
+        return res.send({ user: user });
+      } else {
+        res.send({ user: null });
+      }
+    });
     // ! POST
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
