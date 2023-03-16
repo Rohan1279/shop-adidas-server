@@ -57,17 +57,19 @@ async function run() {
       const result = await productsCollection.find(query).toArray();
       res.send(result);
     });
-    // find if user is a buyer
+
     app.get("/user/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email };
       const user = await usersCollection.findOne(query);
       res.send({
-        isBuyer: user?.userRole === "Buyer",
-        isSeller: user?.userRole === "Seller",
+        // send userRole
+        userRole: user?.userRole
+        // isBuyer: user?.userRole === "Buyer",
+        // isSeller: user?.userRole === "Seller",
       });
     });
-    app.get("/users", async (req, res) => {
+    app.get("/user", async (req, res) => {
       const email = req.query.email;
       const query = { email };
       const user = await usersCollection.findOne(query);
