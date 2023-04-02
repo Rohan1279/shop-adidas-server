@@ -20,7 +20,24 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-
+//* verify JWT
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  // console.log(req.headers.authorization);
+  if (!authHeader) {
+    return res.status(401).send("unauthorized access");
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+    if (err) {
+      return res
+        .status(403)
+        .send({ message: "from verify JWT -> forbidden access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 // add below codes
 // https://shop-adidas.vercel.app
 async function run() {
@@ -59,26 +76,28 @@ async function run() {
     });
 
     app.get("/user/:email", async (req, res) => {
+      const authHeader = req.headers.authorization;
+      // console.log(authHeader);
       const email = req.params.email;
       const query = { email };
       const user = await usersCollection.findOne(query);
       res.send({
         // send userRole
-        userRole: user?.userRole
+        userRole: user?.userRole,
         // isBuyer: user?.userRole === "Buyer",
         // isSeller: user?.userRole === "Seller",
       });
     });
-    app.get("/user", async (req, res) => {
-      const email = req.query.email;
-      const query = { email };
-      const user = await usersCollection.findOne(query);
-      if (user) {
-        return res.send({ user: user });
-      } else {
-        res.send({ user: null });
-      }
-    });
+    // app.get("/user", async (req, res) => {
+    //   const email = req.query.email;
+    //   const query = { email };
+    //   const user = await usersCollection.findOne(query);
+    //   if (user) {
+    //     return res.send({ user: user });
+    //   } else {
+    //     res.send({ user: null });
+    //   }
+    // });
     // ! POST
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
@@ -92,7 +111,7 @@ async function run() {
       const query = { email: email };
 
       const isExistingUser = await usersCollection.find(query).toArray();
-      console.log(isExistingUser[0]?.userRole);
+      // console.log(isExistingUser[0]?.userRole);
       let result = {};
       if (
         isExistingUser.length === 0 ||
@@ -108,21 +127,26 @@ async function run() {
       else res.status(409).send({ message: "Email already in use" });
     });
     // temporary to add property
-    // app.get("/addData/colors", async (req, res) => {
-    //   const filter = {};
-    //   const options = { upsert: true };
-    //   const updatedDoc = {
-    //     $set: {
-    //       color: "",
-    //     },
-    //   };
-    //   const result = await productsCollection.updateMany(
-    //     filter,
-    //     updatedDoc,
-    //     options
-    //   );
-    //   res.send(result);
-    // });
+    app.get("/addData/seller", async (req, res) => {
+      const filter = {};
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          seller_phone: "",
+          seller_id: "",
+          seller_name: "",
+          seller_email: "",
+          seller_default_image:
+            "https://static.vecteezy.com/system/resources/thumbnails/009/312/919/small/3d-render-cute-girl-sit-crossed-legs-hold-laptop-studying-at-home-png.png",
+        },
+      };
+      const result = await productsCollection.updateMany(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
 
     // update property value matched with other property name
     // app.get("/update/color", async (req, res) => {
