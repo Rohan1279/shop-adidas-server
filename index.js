@@ -38,6 +38,7 @@ function verifyJWT(req, res, next) {
     next();
   });
 }
+
 // add below codes
 // https://shop-adidas.vercel.app
 async function run() {
@@ -52,6 +53,15 @@ async function run() {
       .db("shop-adidas-db")
       .collection("adidas-sneakers-04");
     const usersCollection = client.db("shop-adidas-db").collection("users");
+    const verifySeller = async (req, res, next) => {
+      const decodedEmail = req.decoded.email;
+      const query = { email: decodedEmail };
+      const user = await usersCollection.findOne(query);
+      if (user?.userRole !== "Seller") {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      next();
+    };
     //! GET
     //read all products data
     app.get("/products", async (req, res) => {
@@ -126,27 +136,28 @@ async function run() {
       // console.log(res);
       else res.status(409).send({ message: "Email already in use" });
     });
-    // temporary to add property
-    app.get("/addData/seller", async (req, res) => {
-      const filter = {};
-      const options = { upsert: true };
-      const updatedDoc = {
-        $set: {
-          seller_phone: "",
-          seller_id: "",
-          seller_name: "",
-          seller_email: "",
-          seller_default_image:
-            "https://static.vecteezy.com/system/resources/thumbnails/009/312/919/small/3d-render-cute-girl-sit-crossed-legs-hold-laptop-studying-at-home-png.png",
-        },
-      };
-      const result = await productsCollection.updateMany(
-        filter,
-        updatedDoc,
-        options
-      );
+    app.post("/products", verifyJWT, verifySeller, async (req, res) => {
+      const product = req.body;
+      // console.log(product);
+      const result = await productsCollection.insertOne(product);
       res.send(result);
     });
+    // temporary to add property
+    // app.get("/addData/stock", async (req, res) => {
+    //   const filter = {};
+    //   const options = { upsert: true };
+    //   const updatedDoc = {
+    //     $set: {
+    //       inStock: true,
+    //     },
+    //   };
+    //   const result = await productsCollection.updateMany(
+    //     filter,
+    //     updatedDoc,
+    //     options
+    //   );
+    //   res.send(result);
+    // });
 
     // update property value matched with other property name
     // app.get("/update/color", async (req, res) => {
