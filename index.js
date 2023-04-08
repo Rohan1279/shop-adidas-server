@@ -1,10 +1,85 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const { google } = require("googleapis");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 const app = express();
 const port = process.env.port || 5000;
 require("dotenv").config();
+const CLIENT_ID =
+  "178339055643-f04ij0ii0ars4rq06cnhrncj6a79cfi8.apps.googleusercontent.com";
+const CLIENT_SECRET = "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";
+const REDIRECT_URI = "https://developers.google.com/oauthplayground";
+const REFRESH_TOKEN =
+  "1//043632kBx4KpACgYIARAAGAQSNwF-L9IrPItY2t2YMYyT678wu40vc3eC61qcED7HURpyXhj_Yc8Vvjd7jqxtgIqnk935JkgSNVM";
+const oauth2Client = new google.auth.OAuth2(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI
+);
+oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+const drive = google.drive({
+  version: "v3",
+  auth: oauth2Client,
+});
+// const upload = multer({
+//   storage: multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       cb(null, "uploads/");
+//     },
+//     filename: (req, file, cb) => {
+//       cb(null, file.originalname);
+//     },
+//   }),
+// });
+//Setting storage engine
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./images");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+const upload = multer({ storage: storage }).single("image");
+async function uploadFile(imgFile) {
+  const filePath = path.join(__dirname, `${imgFile.originalname}`);
+  try {
+    const response = await drive.files.create({
+      requestBody: {
+        name: `${imgFile.originalname}`, //This can be name of your choice
+        mimeType: "image/jpg",
+      },
+      media: {
+        mimeType: "image/jpg",
+        body: fs.createReadStream(filePath),
+      },
+    });
 
+    console.log(response.data);
+  } catch (error) {
+    console.log(error.message);
+  }
+  // try {
+  //   const response = await drive.files.create({
+  //     requestBody: {
+  //       name: imageFile.name, // Use the original filename of the uploaded image
+  //       mimeType: imageFile.type,
+  //     },
+  //     media: {
+  //       mimeType: imageFile.type,
+  //       body: imageFile,
+  //     },
+  //   });
+
+  //   console.log(response.data);
+  // } catch (error) {
+  //   console.log(error.message);
+  // }
+}
+// uploadFile();
 //middleware
 app.use(cors());
 app.use(express.json());
@@ -136,11 +211,37 @@ async function run() {
       // console.log(res);
       else res.status(409).send({ message: "Email already in use" });
     });
+    app.post("/upload", async (req, res) => {
+      upload(req, res, function (err) {
+        if (err) throw err;
+        console.log(req.file.path);
+        const filemetadata = { name: req.file.filename };
+        const media = {
+          mimeType: req.file.mimetype,
+          body: fs.createReadStream(req.file.path),
+        };
+        drive.files.create(
+          {
+            resource: filemetadata,
+            media: media,
+            fields: "id",
+          },
+          (err, file) => {
+            if (err) throw err;
+            //! delete the file images folder
+            fs.unlinkSync(req.file.path);
+            // res.render("success", { name: name, pic: pic, success: true });
+          }
+        );
+      });
+    });
     app.post("/products", verifyJWT, verifySeller, async (req, res) => {
       const product = req.body;
+      console.log(product);
+      // uploadFile(product);
       // console.log(product);
-      const result = await productsCollection.insertOne(product);
-      res.send(result);
+      // const result = await productsCollection.insertOne(product);
+      // res.send(result);
     });
     // temporary to add property
     // app.get("/addData/stock", async (req, res) => {
