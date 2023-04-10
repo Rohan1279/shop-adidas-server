@@ -54,8 +54,27 @@ const upload = multer({ storage: storage }).single("image");
 //     console.log(error.message);
 //   }
 // }
-
-app.use(cors({ origin: "*" }));
+const corsOptions = {
+  origin: "*",
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Origin",
+    "X-Requested-With",
+    "Accept",
+    "x-client-key",
+    "x-client-token",
+    "x-client-secret",
+    "Authorization",
+  ],
+};
+app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
 app.use(express.json());
 
 app.get("/", (req, res) => {
