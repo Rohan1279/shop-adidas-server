@@ -24,64 +24,38 @@ const drive = google.drive({
   version: "v3",
   auth: oauth2Client,
 });
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination: (req, file, cb) => {
-//       cb(null, "uploads/");
-//     },
-//     filename: (req, file, cb) => {
-//       cb(null, file.originalname);
-//     },
-//   }),
-// });
-//Setting storage engine
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./images");
+    cb(null, "./tmp");
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
   },
 });
+//// !middlewares ////
 const upload = multer({ storage: storage }).single("image");
-async function uploadFile(imgFile) {
-  const filePath = path.join(__dirname, `${imgFile.originalname}`);
-  try {
-    const response = await drive.files.create({
-      requestBody: {
-        name: `${imgFile.originalname}`, //This can be name of your choice
-        mimeType: "image/jpg",
-      },
-      media: {
-        mimeType: "image/jpg",
-        body: fs.createReadStream(filePath),
-      },
-    });
+// async function uploadFile(imgFile) {
+//   const filePath = path.join(__dirname, `${imgFile.originalname}`);
+//   try {
+//     const response = await drive.files.create({
+//       requestBody: {
+//         name: `${imgFile.originalname}`, //This can be name of your choice
+//         mimeType: "image/jpg",
+//       },
+//       media: {
+//         mimeType: "image/jpg",
+//         body: fs.createReadStream(filePath),
+//       },
+//     });
 
-    console.log(response.data);
-  } catch (error) {
-    console.log(error.message);
-  }
-  // try {
-  //   const response = await drive.files.create({
-  //     requestBody: {
-  //       name: imageFile.name, // Use the original filename of the uploaded image
-  //       mimeType: imageFile.type,
-  //     },
-  //     media: {
-  //       mimeType: imageFile.type,
-  //       body: imageFile,
-  //     },
-  //   });
+//     console.log(response.data);
+//   } catch (error) {
+//     console.log(error.message);
+//   }
+// }
 
-  //   console.log(response.data);
-  // } catch (error) {
-  //   console.log(error.message);
-  // }
-}
-// uploadFile();
-//middleware
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -229,7 +203,7 @@ async function run() {
           (err, file) => {
             if (err) throw err;
             //! delete the file images folder
-            fs.unlinkSync(req.file.path);
+            // fs.unlinkSync(req.file.path);
             // res.render("success", { name: name, pic: pic, success: true });
           }
         );
