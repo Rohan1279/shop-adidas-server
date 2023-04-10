@@ -69,6 +69,7 @@ const corsOptions = {
     "x-client-secret",
     "Authorization",
   ],
+  
 };
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
@@ -208,24 +209,24 @@ async function run() {
       upload(req, res, function (err) {
         if (err) throw err;
         console.log(req.file.path);
-        const filemetadata = { name: req.file.filename };
-        const media = {
-          mimeType: req.file.mimetype,
-          body: fs.createReadStream(req.file.path),
-        };
-        drive.files.create(
-          {
-            resource: filemetadata,
-            media: media,
-            fields: "id",
-          },
-          (err, file) => {
-            if (err) throw err;
-            //! delete the file images folder
-            // fs.unlinkSync(req.file.path);
-            // res.render("success", { name: name, pic: pic, success: true });
-          }
-        );
+        // const filemetadata = { name: req.file.filename };
+        // const media = {
+        //   mimeType: req.file.mimetype,
+        //   body: fs.createReadStream(req.file.path),
+        // };
+        // drive.files.create(
+        //   {
+        //     resource: filemetadata,
+        //     media: media,
+        //     fields: "id",
+        //   },
+        //   (err, file) => {
+        //     if (err) throw err;
+        //     //! delete the file images folder
+        //     // fs.unlinkSync(req.file.path);
+        //     // res.render("success", { name: name, pic: pic, success: true });
+        //   }
+        // );
       });
     });
     app.post("/products", verifyJWT, verifySeller, async (req, res) => {
