@@ -50,7 +50,7 @@ const generatePublicUri = async (fileId) => {
 };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./tmp"); // use /tmp when deploy to vercel
+    cb(null, "/tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -228,6 +228,7 @@ async function run() {
       else res.status(409).send({ message: "Email already in use" });
     });
     app.post("/upload", async (req, res) => {
+      let imgUrl = "";
       upload(req, res, async function (err) {
         const filemetadata = { name: req.file.filename, fields: "id" };
         const media = {
@@ -238,9 +239,10 @@ async function run() {
           const googleResponse = await uploadToGoogle(filemetadata, media);
           console.log(googleResponse.data.id);
           const fileId = googleResponse.data.id;
-          const imgUrl = await generatePublicUri(fileId);
+          imgUrl = await generatePublicUri(fileId);
           console.log(imgUrl);
-          // fs.unlinkSync(req.file.path);
+          fs.unlinkSync(req.file.path);
+          // respond.send({imgUrl});
         } catch (error) {
           throw err;
         }
