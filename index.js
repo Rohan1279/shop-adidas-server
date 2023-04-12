@@ -207,7 +207,7 @@ async function run() {
     });
     app.post("/upload", async (req, res) => {
       upload(req, res, function (err) {
-        if (err) throw err;
+        // if (err) throw err;
         console.log(req.file.path);
         const filemetadata = { name: req.file.filename };
         const media = {
@@ -221,7 +221,7 @@ async function run() {
             fields: "id",
           },
           (err, file) => {
-            if (err) throw err;
+            // if (err) throw err;
             //! delete the file images folder
             fs.unlinkSync(req.file.path);
             // res.render("success", { name: name, pic: pic, success: true });
