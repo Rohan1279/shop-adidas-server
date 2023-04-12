@@ -24,10 +24,27 @@ const drive = google.drive({
   version: "v3",
   auth: oauth2Client,
 });
+const uploadToGoogle = async (filemetadata, media) => {
+  return drive.files.create(
+    {
+      resource: filemetadata,
+      media: media,
 
+      // requestBody: req.file.filename,
+    }
+    // (err, file  ) => {
+    //   console.log(googleResponse);
+    //   // if (err) throw err;
+    //   //! delete the file images folder
+    //   fs.unlinkSync(req.file.path);
+    //   // res.render("success", { name: name, pic: pic, success: true });
+
+    // }
+  );
+};
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/tmp"); // use /tmp when deploy to vercel
+    cb(null, "./tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -69,7 +86,6 @@ const corsOptions = {
     "x-client-secret",
     "Authorization",
   ],
-  
 };
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
@@ -206,29 +222,21 @@ async function run() {
       else res.status(409).send({ message: "Email already in use" });
     });
     app.post("/upload", async (req, res) => {
-      upload(req, res, function (err) {
-        // if (err) throw err;
-        // console.log(req.file.filename);
-        const filemetadata = { name: req.file.filename };
+      upload(req, res, async function (err) {
+        const filemetadata = { name: req.file.filename, fields: "id" };
         const media = {
           mimeType: req.file.mimetype,
           body: fs.createReadStream(req.file.path),
         };
-        drive.files.create(
-          {
-            resource: filemetadata,
-            media: media,
-            fields: "id",
-          },
-          (err, file) => {
-            // if (err) throw err;
-            //! delete the file images folder
-            fs.unlinkSync(req.file.path);
-            // res.render("success", { name: name, pic: pic, success: true });
-          }
-        );
+        const googleResponse = await uploadToGoogle(filemetadata, media);
+        console.log(googleResponse.data.id);
+        // console.log(req.file.filename);
+        // if (err) throw err;
+
+        // console.log(googleResponse);
       });
     });
+    app.delete("/delete", async (req, res) => {});
     app.post("/products", verifyJWT, verifySeller, async (req, res) => {
       const product = req.body;
       console.log(product);
