@@ -27,7 +27,7 @@ const drive = google.drive({
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/tmp");
+    cb(null, "./tmp");
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -223,7 +223,7 @@ async function run() {
           (err, file) => {
             if (err) throw err;
             //! delete the file images folder
-            // fs.unlinkSync(req.file.path);
+            fs.unlinkSync(req.file.path);
             // res.render("success", { name: name, pic: pic, success: true });
           }
         );
