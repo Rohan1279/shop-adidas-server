@@ -27,7 +27,7 @@ const drive = google.drive({
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./tmp");
+    cb(null, "./tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
