@@ -25,22 +25,28 @@ const drive = google.drive({
   auth: oauth2Client,
 });
 const uploadToGoogle = async (filemetadata, media) => {
-  return drive.files.create(
-    {
-      resource: filemetadata,
-      media: media,
-
-      // requestBody: req.file.filename,
-    }
-    // (err, file  ) => {
-    //   console.log(googleResponse);
-    //   // if (err) throw err;
-    //   //! delete the file images folder
-    //   fs.unlinkSync(req.file.path);
-    //   // res.render("success", { name: name, pic: pic, success: true });
-
-    // }
-  );
+  return drive.files.create({
+    resource: filemetadata,
+    media: media,
+  });
+};
+const generatePublicUri = async (fileId) => {
+  try {
+    await drive.permissions.create({
+      fileId: fileId,
+      requestBody: {
+        role: "reader",
+        type: "anyone",
+      },
+    });
+    const result = await drive.files.get({
+      fileId: fileId,
+      fields: "webViewLink, webContentLink",
+    });
+    return result.data.webContentLink.replace("&export=download", "");
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -228,12 +234,17 @@ async function run() {
           mimeType: req.file.mimetype,
           body: fs.createReadStream(req.file.path),
         };
-        const googleResponse = await uploadToGoogle(filemetadata, media);
-        console.log(googleResponse.data.id);
-        // console.log(req.file.filename);
-        // if (err) throw err;
-
-        // console.log(googleResponse);
+        try {
+          const googleResponse = await uploadToGoogle(filemetadata, media);
+          console.log(googleResponse.data.id);
+          const fileId = googleResponse.data.id;
+          const imgUrl = await generatePublicUri(fileId);
+          console.log(imgUrl);
+          // fs.unlinkSync(req.file.path);
+        } catch (error) {
+          throw err;
+        }
+        // res.render("success", { name: name, pic: pic, success: true });
       });
     });
     app.delete("/delete", async (req, res) => {});
