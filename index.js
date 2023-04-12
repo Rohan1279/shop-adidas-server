@@ -6,7 +6,7 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const app = express();
-const port = process.env.port || 5000;
+const port = 5000;
 require("dotenv").config();
 const CLIENT_ID =
   "178339055643-f04ij0ii0ars4rq06cnhrncj6a79cfi8.apps.googleusercontent.com";
