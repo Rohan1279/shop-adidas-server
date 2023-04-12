@@ -208,7 +208,7 @@ async function run() {
     app.post("/upload", async (req, res) => {
       upload(req, res, function (err) {
         // if (err) throw err;
-        console.log(req.file.filename);
+        // console.log(req.file.filename);
         const filemetadata = { name: req.file.filename };
         const media = {
           mimeType: req.file.mimetype,
