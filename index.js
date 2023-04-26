@@ -13,7 +13,7 @@ const CLIENT_ID =
 const CLIENT_SECRET = "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";
 const REDIRECT_URI = "https://developers.google.com/oauthplayground";
 const REFRESH_TOKEN =
-  "1//043632kBx4KpACgYIARAAGAQSNwF-L9IrPItY2t2YMYyT678wu40vc3eC61qcED7HURpyXhj_Yc8Vvjd7jqxtgIqnk935JkgSNVM";
+  "1//04KrEuDnCguTECgYIARAAGAQSNwF-L9Irq7lfJp-2_qzzxMV0W5Q5KmDMMFIc3o7PMECAcIrKjLmOSv_oo693Ou8V-zxAmCWGAp0";
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
   CLIENT_SECRET,
@@ -50,7 +50,7 @@ const generatePublicUri = async (fileId) => {
 };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/tmp"); // use /tmp when deploy to vercel
+    cb(null, "./tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -58,25 +58,6 @@ const storage = multer.diskStorage({
 });
 //// !middlewares ////
 const upload = multer({ storage: storage }).single("image");
-// async function uploadFile(imgFile) {
-//   const filePath = path.join(__dirname, `${imgFile.originalname}`);
-//   try {
-//     const response = await drive.files.create({
-//       requestBody: {
-//         name: `${imgFile.originalname}`, //This can be name of your choice
-//         mimeType: "image/jpg",
-//       },
-//       media: {
-//         mimeType: "image/jpg",
-//         body: fs.createReadStream(filePath),
-//       },
-//     });
-
-//     console.log(response.data);
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// }
 const corsOptions = {
   origin: "*",
   credentials: true, //access-control-allow-credentials:true
@@ -230,6 +211,10 @@ async function run() {
     app.post("/upload", async (req, res) => {
       let imgUrl = "";
       upload(req, res, async function (err) {
+        if (err) {
+          // handle error
+          return res.status(400).json({ error: "File upload failed" });
+        }
         const filemetadata = { name: req.file.filename, fields: "id" };
         const media = {
           mimeType: req.file.mimetype,
@@ -237,26 +222,20 @@ async function run() {
         };
         try {
           const googleResponse = await uploadToGoogle(filemetadata, media);
-          console.log(googleResponse.data.id);
           const fileId = googleResponse.data.id;
           imgUrl = await generatePublicUri(fileId);
-          console.log(imgUrl);
           fs.unlinkSync(req.file.path);
-          // respond.send({imgUrl});
+          return res.status(200).json({ fileId,imgUrl });
         } catch (error) {
-          throw err;
+          console.log(error);
         }
-        // res.render("success", { name: name, pic: pic, success: true });
       });
     });
     app.delete("/delete", async (req, res) => {});
     app.post("/products", verifyJWT, verifySeller, async (req, res) => {
       const product = req.body;
-      console.log(product);
-      // uploadFile(product);
-      // console.log(product);
-      // const result = await productsCollection.insertOne(product);
-      // res.send(result);
+      const result = await productsCollection.insertOne(product);
+      res.send(result);
     });
     // temporary to add property
     // app.get("/addData/stock", async (req, res) => {
