@@ -215,17 +215,22 @@ async function run() {
           // handle error
           return res.status(400).json({ error: "File upload failed" });
         }
-        const filemetadata = { name: req.file.filename, fields: "id" };
+        const filemetadata = {
+          name: req.file.filename,
+          fields: "id",
+          parents: ["1VRwJVvnXuW0y99nvevaq0cMsc2BbAbmo"],
+        };
         const media = {
           mimeType: req.file.mimetype,
           body: fs.createReadStream(req.file.path),
         };
+        // console.log(req.file);
         try {
           const googleResponse = await uploadToGoogle(filemetadata, media);
           const fileId = googleResponse.data.id;
           imgUrl = await generatePublicUri(fileId);
           fs.unlinkSync(req.file.path);
-          return res.status(200).json({ fileId,imgUrl });
+          return res.status(200).json({ fileId, imgUrl });
         } catch (error) {
           console.log(error);
         }
