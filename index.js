@@ -217,7 +217,22 @@ async function run() {
       try {
         // Get the folder name from the request body
         const folderName = req.body.folderName;
-        // console.log(folderName);
+        // Check if a folder with the same name already exists
+        const query = `name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+        const existingFolders = await drive.files.list({
+          q: query,
+          fields: "files(id)",
+        });
+
+        // If a folder with the same name already exists, return its ID
+        if (existingFolders.data.files.length > 0) {
+          const folderId = existingFolders.data.files[0].id;
+          return res.status(200).json({
+            success: true,
+            message: "Folder already exists",
+            folderId: folderId,
+          });
+        }
 
         // Create the folder metadata
         const folderMetadata = {
@@ -236,6 +251,7 @@ async function run() {
         res.status(200).json({
           success: true,
           folderId: folder.data.id,
+          message: "New folder created",
         });
       } catch (error) {
         console.error(error);
@@ -251,8 +267,6 @@ async function run() {
       // console.log(req);
 
       upload(req, res, async function (err) {
-        console.log(req.body.folderId);
-        console.log(req.file);
         if (err) {
           // handle error
           return res.status(400).json({ error: "File upload failed" });
