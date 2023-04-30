@@ -15,6 +15,9 @@ const REDIRECT_URI = "https://developers.google.com/oauthplayground";
 const REFRESH_TOKEN =
   "1//04KrEuDnCguTECgYIARAAGAQSNwF-L9Irq7lfJp-2_qzzxMV0W5Q5KmDMMFIc3o7PMECAcIrKjLmOSv_oo693Ou8V-zxAmCWGAp0";
 const oauth2Client = new google.auth.OAuth2(
+  // process.env.CLIENT_ID,
+  // process.env.CLIENT_SECRET,
+  // process.env.REDIRECT_URI
   CLIENT_ID,
   CLIENT_SECRET,
   REDIRECT_URI
@@ -50,7 +53,7 @@ const generatePublicUri = async (fileId) => {
 };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/tmp"); // use /tmp when deploy to vercel
+    cb(null, "./tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -208,6 +211,41 @@ async function run() {
       // console.log(res);
       else res.status(409).send({ message: "Email already in use" });
     });
+
+    //! Create a route to create a new folder
+    app.post("/createFolder", async (req, res) => {
+      try {
+        // Get the folder name from the request body
+        const folderName = req.body.folderName;
+        console.log(folderName);
+
+        // Create the folder metadata
+        const folderMetadata = {
+          name: folderName,
+          mimeType: "application/vnd.google-apps.folder",
+          parents: ["1VRwJVvnXuW0y99nvevaq0cMsc2BbAbmo"],
+        };
+
+        // Create the folder in Google Drive
+        const folder = await drive.files.create({
+          resource: folderMetadata,
+          fields: "id",
+        });
+
+        // Send the folder ID in the response
+        res.status(200).json({
+          success: true,
+          folderId: folder.data.id,
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({
+          success: false,
+          error: error.message,
+        });
+      }
+    });
+
     app.post("/upload", async (req, res) => {
       let imgUrl = "";
       upload(req, res, async function (err) {
