@@ -213,11 +213,11 @@ async function run() {
     });
 
     //! Create a route to create a new folder
-    app.post("/createFolder", async (req, res) => {
+    app.put("/createFolder", async (req, res) => {
       try {
         // Get the folder name from the request body
         const folderName = req.body.folderName;
-        console.log(folderName);
+        // console.log(folderName);
 
         // Create the folder metadata
         const folderMetadata = {
@@ -248,7 +248,11 @@ async function run() {
 
     app.post("/upload", async (req, res) => {
       let imgUrl = "";
+      // console.log(req);
+
       upload(req, res, async function (err) {
+        console.log(req.body.folderId);
+        console.log(req.file);
         if (err) {
           // handle error
           return res.status(400).json({ error: "File upload failed" });
@@ -256,7 +260,7 @@ async function run() {
         const filemetadata = {
           name: req.file.filename,
           fields: "id",
-          parents: ["1VRwJVvnXuW0y99nvevaq0cMsc2BbAbmo"],
+          parents: [`${req.body.folderId}`],
         };
         const media = {
           mimeType: req.file.mimetype,
