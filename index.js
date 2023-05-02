@@ -88,7 +88,7 @@ app.get("/", (req, res) => {
   res.send("simple nodeserver running");
 });
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.lgtzpwm.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -183,6 +183,17 @@ async function run() {
     //     res.send({ user: null });
     //   }
     // });
+    app.get("/seller_products", async (req, res) => {
+      const { email, sortField, sortingOrder } = req.query;
+      // const sortingOrder = req.params.sort;
+      // console.log(sortField, sortingOrder);
+      const query = { seller_email: email };
+      const products = await productsCollection
+        .find(query)
+        // .sort({ sortField: -1 })
+        .toArray();
+      res.send(products);
+    });
     // ! POST
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
@@ -292,11 +303,20 @@ async function run() {
         }
       });
     });
-    app.delete("/delete", async (req, res) => {});
     app.post("/products", verifyJWT, verifySeller, async (req, res) => {
       const product = req.body;
       const result = await productsCollection.insertOne(product);
       res.send(result);
+    });
+    //! DELETE
+    app.delete("/seller_products/delete", async (req, res) => {
+      const productId = req.query.id;
+      // const query = {};
+      console.log(productId);
+      const result = productsCollection.deleteOne({ _id: ObjectId(productId) });
+      res.send(result);
+      if (result.deletedCount === 1) {
+      }
     });
     // temporary to add property
     // app.get("/addData/stock", async (req, res) => {
