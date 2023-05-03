@@ -13,7 +13,7 @@ const CLIENT_ID =
 const CLIENT_SECRET = "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";
 const REDIRECT_URI = "https://developers.google.com/oauthplayground";
 const REFRESH_TOKEN =
-  "1//04KrEuDnCguTECgYIARAAGAQSNwF-L9Irq7lfJp-2_qzzxMV0W5Q5KmDMMFIc3o7PMECAcIrKjLmOSv_oo693Ou8V-zxAmCWGAp0";
+  "1//04_v_zqTNoY3uCgYIARAAGAQSNwF-L9IrXuRZaZWpRqXV1zKxfMQ84kGyXjUPC_TLEIXJ_3Sz_myMpVFq9167ETDUopPUR77nQno";
 const oauth2Client = new google.auth.OAuth2(
   // process.env.CLIENT_ID,
   // process.env.CLIENT_SECRET,
@@ -306,17 +306,30 @@ async function run() {
     app.post("/products", verifyJWT, verifySeller, async (req, res) => {
       const product = req.body;
       const result = await productsCollection.insertOne(product);
+      // console.log(result);
       res.send(result);
     });
     //! DELETE
     app.delete("/seller_products/delete", async (req, res) => {
       const productId = req.query.id;
       // const query = {};
-      console.log(productId);
+      // console.log(productId);
       const result = productsCollection.deleteOne({ _id: ObjectId(productId) });
       res.send(result);
       if (result.deletedCount === 1) {
       }
+    });
+    app.delete("/files/:fileId", (req, res) => {
+      const fileId = req.params.fileId;
+      console.log(fileId);
+      drive.files.delete({ fileId }, (err, result) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Error deleting file");
+        } else {
+          res.send(`File with ID: ${fileId} has been deleted`);
+        }
+      });
     });
     // temporary to add property
     // app.get("/addData/stock", async (req, res) => {
