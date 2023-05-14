@@ -53,7 +53,7 @@ const generatePublicUri = async (fileId) => {
 };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./tmp"); // use /tmp when deploy to vercel
+    cb(null, "/tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
