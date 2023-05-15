@@ -13,7 +13,7 @@ const CLIENT_ID =
 const CLIENT_SECRET = "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";
 const REDIRECT_URI = "https://developers.google.com/oauthplayground";
 const REFRESH_TOKEN =
-  "1//04_v_zqTNoY3uCgYIARAAGAQSNwF-L9IrXuRZaZWpRqXV1zKxfMQ84kGyXjUPC_TLEIXJ_3Sz_myMpVFq9167ETDUopPUR77nQno";
+  "1//04KSgxlczHS0fCgYIARAAGAQSNwF-L9IrBQvrd-gLm6g3-MENgJ9AQ-wXDoBoYcSqa6ygIk0HFBTfzlOl24BnAkQEJhyj-DjLOGs";
 const oauth2Client = new google.auth.OAuth2(
   // process.env.CLIENT_ID,
   // process.env.CLIENT_SECRET,
@@ -22,11 +22,24 @@ const oauth2Client = new google.auth.OAuth2(
   CLIENT_SECRET,
   REDIRECT_URI
 );
+//use service account instead of access token
+// const KEYFILEPATH = path.join(`${__dirname}/../shop-adidas-acd8fa728d67.json`);
+const KEYFILEPATH = path.join(__dirname, 'shop-adidas-acd8fa728d67.json');
+const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
+
+const auth = new google.auth.GoogleAuth({
+  keyFile: KEYFILEPATH,
+  scopes: SCOPES,
+});
+//use service account instead of access token
+
 oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 const drive = google.drive({
   version: "v3",
-  auth: oauth2Client,
+  // auth: oauth2Client,
+  auth,
 });
+
 const uploadToGoogle = async (filemetadata, media) => {
   return drive.files.create({
     resource: filemetadata,
@@ -53,7 +66,7 @@ const generatePublicUri = async (fileId) => {
 };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/tmp"); // use /tmp when deploy to vercel 
+    cb(null, "./tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
