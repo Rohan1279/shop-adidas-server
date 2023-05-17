@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "shop-adidas",
+  "private_key_id": "acd8fa728d670b5b8672638e72543d787a7c9a18",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCg6tou9DUtJX9L\n6kyhJHHKpVsS8BYdkCZsoibUC2XCJaPpCTlpSgLTaIz/75axrBfTrmeGmN/MRPwy\nT3PboKPogYk29/fpPGzfmLwcCBZ5Pt0rq+PKRFEkCTmSj2/MMG0E07oMGXeMyzga\nBjB0yDQ98vvMdc6WheNBw6RXGPW2KgzjPZeDyHAiQeAhnCpnYtEQ8VpYBAz+xVKs\nwSzGDAkczGxf7b0h+UfJDgWTodX/E/VPNyTvDqTm/A5YbSIctRIdN4vnhSDtcY0W\nNftgDyI+sUIkKBAxxqJ9iBWroEXSoLxkdrfTqxFJXUHl0IvMg8ZJWfdsYzK0I6PA\nXIpQB397AgMBAAECggEAM4gyOgIru1r8Qpf0VVCB/mbo3Q40zt/YZkahT5ucyUlb\njefN0mmIsSIUsWuNIzXc5YW/EowHc3eOGiB2llmB1BYTlp5fbnpS1WIor4Npiwd2\nNaOUzbQGFhe8L7Kul0HUz8xsEq7fKZ/0xeTAhM2OaV5Ug7wgXfTfe7KHAPt1yJF5\njl/z5QEjceI9r2oy0G5lQb6kv6IDdeXEECrf5fK/Zt/W4zk7QjF9lmm52GiB17sA\ne8fHDonLzDsFbCalcbAiSOYCWpK6U3S7b0fwKIT5mxuMJxLV9gbhn2BMjVAUEk/R\ndgnr1ha2LqzOP2hRFR5So5SEaSpDcEqQmGbGxKyoGQKBgQDYayMtcRu4wwRvdskd\neZry9wjjOZY9USbItoLFH2+BZCFYYYo9JME38u226nPOMetH78dV+TTpkOP+/gxL\nP/vzpvcz58fvrHdZTNohdugaR9gi89QqVvhrlb30k7u1DJO+8YJHbaikRcV8TH+w\nzOcVuWQXavgBorUP6TfUQd4lgwKBgQC+WR1ed6KLQ8ZHkjqmMRqEZCgrBqiRDM0z\nq3jvVzJAy89HHRhTVYouAKsHaxhaHvuzmjbm4eJ2FVUSOTfH0wyjIVVNb0rdPupM\nOwyiPaUB/6DuBjo1gfJqYHHGnYFYLW8a9QVPX3usk+w3viJI3UIf3J1/FhE+ijIS\nb13bALuUqQKBgQC2hj2H8NJJlKij/ZIHOu2VJwYm5gWxN0U3mL5X1Hhtr250JOe7\nQ8l2D3uvfrMm33EpHbCH8QNQTfQMtmTV/mPXjiUFcOFuYY3TEf8SpD+DEr7WU8DH\n6MvhqMwpf4ObYb0mGHghF/pYecPiXn5/NYFcEBy7p2r9riV5AuAkM11RUwKBgQCU\nv3MR9Y+SIP57w6wNX2YHe3VgWi20XDqnXCJ/draQqDRssDHoPXpkBKWigHBhTMEJ\nU0QAHRkpifYW7ZvHjgfcGxpcDtKEHrxdoe93gZDHBQqvtzIZyli0BHYk7cS8MZUX\njc3+fvFYpaf8z5pfMniQCYkSXR5QrxH+EgVYNTRhMQKBgQCyXjqrYo0uF6Mfizi+\nqiKEfiY6v7eZHYwJll7Agg9ZFyWADFp3bgyirP9sakG2CU+Eu5JvHZhkAlUoLr3C\n+3dS27WX8zTtR032vyBS/I2DpnRob1XvpR6I32czDtqmS7OXA7v67VXim57WE/ga\ngF2sEGso8c6Y/4DnTqik+ShklA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "drive-uploader@shop-adidas.iam.gserviceaccount.com",
+  "client_id": "106747314338678270617",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/drive-uploader%40shop-adidas.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
