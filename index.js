@@ -13,7 +13,7 @@ const CLIENT_ID =
 const CLIENT_SECRET = "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";
 const REDIRECT_URI = "https://developers.google.com/oauthplayground";
 const REFRESH_TOKEN =
-  "1//04KSgxlczHS0fCgYIARAAGAQSNwF-L9IrBQvrd-gLm6g3-MENgJ9AQ-wXDoBoYcSqa6ygIk0HFBTfzlOl24BnAkQEJhyj-DjLOGs";
+  "1//04Erarq_r79TgCgYIARAAGAQSNwF-L9Ir8to-u2UsDwvZ4XTToe_6VYY6XFH3PGxxlZRG9NPhBBHrIJWtLJCt4G66mwpo68k7QgU";
 const oauth2Client = new google.auth.OAuth2(
   // process.env.CLIENT_ID,
   // process.env.CLIENT_SECRET,
@@ -24,7 +24,7 @@ const oauth2Client = new google.auth.OAuth2(
 );
 //use service account instead of access token
 // const KEYFILEPATH = path.join(`${__dirname}/../shop-adidas-acd8fa728d67.json`);
-const KEYFILEPATH = path.join(__dirname, 'shop-adidas-acd8fa728d67.json');
+const KEYFILEPATH = path.join(__dirname, "shop-adidas-acd8fa728d67.json");
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 
 const auth = new google.auth.GoogleAuth({
@@ -36,8 +36,8 @@ const auth = new google.auth.GoogleAuth({
 oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 const drive = google.drive({
   version: "v3",
-  // auth: oauth2Client,
-  auth,
+  auth: oauth2Client,
+  // auth,
 });
 
 const uploadToGoogle = async (filemetadata, media) => {
@@ -320,6 +320,37 @@ async function run() {
       const product = req.body;
       const result = await productsCollection.insertOne(product);
       // console.log(result);
+      res.send(result);
+    });
+    //! PUT
+    app.put("/products", verifyJWT, verifySeller, async (req, res) => {
+      const product = req.body;
+      const filter = { _id: ObjectId(product._id) };
+      const option = { upsert: true };
+      // console.log(product);
+      const updatedDoc = {
+        $set: {
+          category_id: product.category_id,
+          category: product.category,
+          description: product.description,
+          price: product.price,
+          name: product.name,
+          color: product.color,
+          brand: product.brand,
+          stock: product.stock,
+          promo_price: product.promo_price,
+          sizes: product.sizes,
+          imgId: product.imgId,
+          img: product.img,
+          googleFolderId: product.googleFolderId,
+        },
+      };
+      const result = await productsCollection.updateOne(
+        filter,
+        updatedDoc,
+        // product,
+        option
+      );
       res.send(result);
     });
     //! DELETE
