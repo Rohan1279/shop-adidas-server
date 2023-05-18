@@ -36,8 +36,8 @@ const auth = new google.auth.GoogleAuth({
 oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 const drive = google.drive({
   version: "v3",
-  // auth: oauth2Client, // with OAuth 2.0 
-  auth,  // with service account
+  auth: oauth2Client, // with OAuth 2.0
+  // auth,  // with service account
 });
 
 const uploadToGoogle = async (filemetadata, media) => {
@@ -66,7 +66,7 @@ const generatePublicUri = async (fileId) => {
 };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/tmp"); // use /tmp when deploy to vercel
+    cb(null, "./tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -197,15 +197,31 @@ async function run() {
     //   }
     // });
     app.get("/seller_products", async (req, res) => {
-      const { email, sortField, sortingOrder } = req.query;
-      // const sortingOrder = req.params.sort;
-      // console.log(sortField, sortingOrder);
+      const { email, currentPage, limit, dateOrder, priceOrder } = req.query;
+      console.log("---------------------------");
+
+      console.log("dateOrder", dateOrder);
+      console.log("priceOrder", priceOrder);
       const query = { seller_email: email };
+      const sortOrder = {
+        posted_on: dateOrder,
+        price: priceOrder,
+      };
       const products = await productsCollection
         .find(query)
-        // .sort({ sortField: -1 })
+        // -1 -> descending ||  1 -> ascending
+        .sort(sortOrder)
+        .skip(parseInt(currentPage) * parseInt(limit))
+        .limit(parseInt(limit))
         .toArray();
-      res.send(products);
+      const count = await productsCollection.find(query).toArray();
+      products.map((product) => {
+        console.log("price", product?.price);
+        console.log("posted_on", product?.posted_on);
+      });
+      console.log("---------------------------");
+
+      res.send([...products, { count: count?.length }]);
     });
     // ! POST
     app.put("/user/:email", async (req, res) => {
