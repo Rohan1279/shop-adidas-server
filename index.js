@@ -66,7 +66,7 @@ const generatePublicUri = async (fileId) => {
 };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/tmp"); // use /tmp when deploy to vercel
+    cb(null, "./tmp"); // use /tmp when deploy to vercel
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -200,7 +200,14 @@ async function run() {
 
     app.get("/seller_products", async (req, res) => {
       const sortOrder = {};
-      const { email, currentPage, limit, dateOrder, priceOrder } = req.query;
+      const {
+        email,
+        currentPage,
+        limit,
+        dateOrder,
+        priceOrder,
+        search = "",
+      } = req.query;
       console.log("---------------------------");
 
       // console.log("dateOrder", parseInt(dateOrder));
@@ -210,9 +217,19 @@ async function run() {
       } else if (!parseInt(dateOrder)) {
         sortOrder.price = parseInt(priceOrder);
       }
-      // console.log(sortOrder);
+      // console.log(search);
 
-      const query = { seller_email: email };
+      const query = {
+        seller_email: email,
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // search by product name
+          { category: { $regex: search, $options: "i" } }, // search by category
+          { description: { $regex: search, $options: "i" } }, // search by description
+          { brand: { $regex: search, $options: "i" } }, // search by brand
+          { posted_on: { $regex: search, $options: "i" } }, // search by date
+          { color: { $regex: search, $options: "i" } }, // search by color
+        ],
+      };
       const products = await productsCollection
         .find(query)
         // -1 -> descending ||  1 -> ascending
@@ -221,21 +238,26 @@ async function run() {
         .limit(parseInt(limit))
         .toArray();
       const count = await productsCollection.find(query).toArray();
+
+      // const searResult = await productsCollection
+      //   .find({
+      //     seller_email: email,
+      //     $or: [
+      //       { name: { $regex: search, $options: "i" } }, // search by product name
+      //       { category: { $regex: search, $options: "i" } }, // search by category
+      //       // { description: { $regex: search, $options: "i" } }, // search by description
+      //     ],
+      //   })
+      //   .toArray();
+
+      console.log(products?.length);
       products.map((product) => {
-        // console.log(product?.price);
-        // console.log(product?.posted_on);
+        console.log(product?.name);
+        console.log(product?.category);
       });
       console.log("---------------------------");
 
       res.send([...products, { count: count?.length }]);
-
-      // const result = await productsCollection.updateMany(
-      //   {seller_email : "bipil14415@meidecn.com"},
-      //   {
-      //     $set: { price: 100 },
-      //   }
-      // );
-      // console.log(result);
     });
     // ! POST
     app.put("/user/:email", async (req, res) => {
