@@ -140,6 +140,7 @@ async function run() {
     const adidasSneakers04 = client
       .db("shop-adidas-db")
       .collection("adidas-sneakers-04");
+
     const usersCollection = client.db("shop-adidas-db").collection("users");
     const verifySeller = async (req, res, next) => {
       const decodedEmail = req.decoded.email;
@@ -196,17 +197,22 @@ async function run() {
     //     res.send({ user: null });
     //   }
     // });
+
     app.get("/seller_products", async (req, res) => {
+      const sortOrder = {};
       const { email, currentPage, limit, dateOrder, priceOrder } = req.query;
       console.log("---------------------------");
 
-      console.log("dateOrder", dateOrder);
-      console.log("priceOrder", priceOrder);
+      // console.log("dateOrder", parseInt(dateOrder));
+      // console.log("priceOrder", parseInt(priceOrder));
+      if (!parseInt(priceOrder)) {
+        sortOrder.posted_on = parseInt(dateOrder);
+      } else if (!parseInt(dateOrder)) {
+        sortOrder.price = parseInt(priceOrder);
+      }
+      // console.log(sortOrder);
+
       const query = { seller_email: email };
-      const sortOrder = {
-        posted_on: dateOrder,
-        price: priceOrder,
-      };
       const products = await productsCollection
         .find(query)
         // -1 -> descending ||  1 -> ascending
@@ -216,12 +222,20 @@ async function run() {
         .toArray();
       const count = await productsCollection.find(query).toArray();
       products.map((product) => {
-        console.log("price", product?.price);
-        console.log("posted_on", product?.posted_on);
+        // console.log(product?.price);
+        // console.log(product?.posted_on);
       });
       console.log("---------------------------");
 
       res.send([...products, { count: count?.length }]);
+
+      // const result = await productsCollection.updateMany(
+      //   {seller_email : "bipil14415@meidecn.com"},
+      //   {
+      //     $set: { price: 100 },
+      //   }
+      // );
+      // console.log(result);
     });
     // ! POST
     app.put("/user/:email", async (req, res) => {
@@ -370,15 +384,22 @@ async function run() {
       res.send(result);
     });
     //! DELETE
-    app.delete("/seller_products/delete", async (req, res) => {
-      const productId = req.query.id;
-      // const query = {};
-      // console.log(productId);
-      const result = productsCollection.deleteOne({ _id: ObjectId(productId) });
-      res.send(result);
-      if (result.deletedCount === 1) {
+    app.delete(
+      "/seller_products/delete",
+      verifyJWT,
+      verifySeller,
+      async (req, res) => {
+        const productId = req.query.id;
+        // const query = {};
+        // console.log(productId);
+        const result = productsCollection.deleteOne({
+          _id: ObjectId(productId),
+        });
+        res.send(result);
+        if (result.deletedCount === 1) {
+        }
       }
-    });
+    );
     app.delete("/files/:fileId", (req, res) => {
       const fileId = req.params.fileId;
       console.log(fileId);
