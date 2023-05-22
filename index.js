@@ -226,7 +226,7 @@ async function run() {
           { category: { $regex: search, $options: "i" } }, // search by category
           { description: { $regex: search, $options: "i" } }, // search by description
           { brand: { $regex: search, $options: "i" } }, // search by brand
-          { posted_on: { $regex: search, $options: "i" } }, // search by date
+          // { posted_on: { $regex: search, $options: "i" } }, // search by date
           { color: { $regex: search, $options: "i" } }, // search by color
         ],
       };
