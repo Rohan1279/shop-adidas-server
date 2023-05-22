@@ -199,65 +199,60 @@ async function run() {
     // });
 
     app.get("/seller_products", async (req, res) => {
-      const sortOrder = {};
-      const {
-        email,
-        currentPage,
-        limit,
-        dateOrder,
-        priceOrder,
-        search = "",
-      } = req.query;
-      console.log("---------------------------");
+      // const sortOrder = {};
+      // const {
+      //   email,
+      //   currentPage,
+      //   limit,
+      //   dateOrder,
+      //   priceOrder,
+      //   search = "",
+      // } = req.query;
+      // console.log("---------------------------");
 
-      // console.log("dateOrder", parseInt(dateOrder));
-      // console.log("priceOrder", parseInt(priceOrder));
-      if (!parseInt(priceOrder)) {
-        sortOrder.posted_on = parseInt(dateOrder);
-      } else if (!parseInt(dateOrder)) {
-        sortOrder.price = parseInt(priceOrder);
-      }
-      // console.log(search);
+      // // console.log("dateOrder", parseInt(dateOrder));
+      // // console.log("priceOrder", parseInt(priceOrder));
+      // if (!parseInt(priceOrder)) {
+      //   sortOrder.posted_on = parseInt(dateOrder);
+      // } else if (!parseInt(dateOrder)) {
+      //   sortOrder.price = parseInt(priceOrder);
+      // }
+      // // console.log(search);
 
-      const query = {
-        seller_email: email,
-        $or: [
-          { name: { $regex: search, $options: "i" } }, // search by product name
-          { category: { $regex: search, $options: "i" } }, // search by category
-          { description: { $regex: search, $options: "i" } }, // search by description
-          { brand: { $regex: search, $options: "i" } }, // search by brand
-          // { posted_on: { $regex: search, $options: "i" } }, // search by date
-          { color: { $regex: search, $options: "i" } }, // search by color
-        ],
-      };
-      const products = await productsCollection
-        .find(query)
-        // -1 -> descending ||  1 -> ascending
-        .sort(sortOrder)
-        .skip(parseInt(currentPage) * parseInt(limit))
-        .limit(parseInt(limit))
-        .toArray();
-      const count = await productsCollection.find(query).toArray();
-
-      // const searResult = await productsCollection
-      //   .find({
-      //     seller_email: email,
-      //     $or: [
-      //       { name: { $regex: search, $options: "i" } }, // search by product name
-      //       { category: { $regex: search, $options: "i" } }, // search by category
-      //       // { description: { $regex: search, $options: "i" } }, // search by description
-      //     ],
-      //   })
+      // const query = {
+      //   seller_email: email,
+      //   $or: [
+      //     { name: { $regex: search, $options: "i" } }, // search by product name
+      //     { category: { $regex: search, $options: "i" } }, // search by category
+      //     { description: { $regex: search, $options: "i" } }, // search by description
+      //     { brand: { $regex: search, $options: "i" } }, // search by brand
+      //     // { posted_on: { $regex: search, $options: "i" } }, // search by date
+      //     { color: { $regex: search, $options: "i" } }, // search by color
+      //   ],
+      // };
+      // const products = await productsCollection
+      //   .find(query)
+      //   // -1 -> descending ||  1 -> ascending
+      //   .sort(sortOrder)
+      //   .skip(parseInt(currentPage) * parseInt(limit))
+      //   .limit(parseInt(limit))
       //   .toArray();
+      // const count = await productsCollection.find(query).toArray();
 
-      console.log(products?.length);
-      products.map((product) => {
-        console.log(product?.name);
-        console.log(product?.category);
-      });
-      console.log("---------------------------");
+      // products.map((product) => {
+      //   // console.log(product?.name);
+      //   // console.log(product?.category);
+      // });
+      // console.log("---------------------------");
 
-      res.send([...products, { count: count?.length }]);
+      // res.send([...products, { count: count?.length }]);
+
+      // Update the document
+      const result = await productsCollection.update(
+        { seller: "Adidas" },
+        { $set: { seller_email: "adidas@adidas.com" } }
+      );
+      console.log(result);
     });
     // ! POST
     app.put("/user/:email", async (req, res) => {
@@ -434,6 +429,7 @@ async function run() {
         }
       });
     });
+
     // temporary to add property
     // app.get("/addData/stock", async (req, res) => {
     //   const filter = {};
