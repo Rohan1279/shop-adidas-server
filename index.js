@@ -36,8 +36,8 @@ const auth = new google.auth.GoogleAuth({
 oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 const drive = google.drive({
   version: "v3",
-  auth: oauth2Client, // with OAuth 2.0
-  // auth,  // with service account
+  // auth: oauth2Client, // with OAuth 2.0
+  auth,  // with service account
 });
 
 const uploadToGoogle = async (filemetadata, media) => {
