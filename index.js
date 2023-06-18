@@ -8,6 +8,17 @@ const path = require("path");
 const app = express();
 const port = 5000;
 require("dotenv").config();
+// socket.io
+const http = require("http");
+const { Server } = require("socket.io");
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    // origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
+
 const CLIENT_ID =
   "178339055643-f04ij0ii0ars4rq06cnhrncj6a79cfi8.apps.googleusercontent.com";
 const CLIENT_SECRET = "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";
@@ -436,7 +447,21 @@ async function run() {
       });
     });
     // ! SELLER CHAT | SOCKET.IO
-    // make an api to join
+    io.on("connection", (socket) => {
+      console.log(socket.id);
+
+      socket.on("join_room", (data) => {
+        socket.join(data);
+        console.log(`user with id: ${socket.id} joined room: ${data}`);
+      });
+      // socket.on("send_message", (data) => {
+      //   console.log(data);
+      //   socket.to(data?.room).emit("receive_message", data);
+      // });
+      socket.on("disconnect", () => {
+        console.log("User disconnected", socket.id);
+      });
+    });
 
     // temporary to add property
     // app.get("/addData/stock", async (req, res) => {
@@ -508,7 +533,11 @@ app.listen(port, () => {
       console.log("Connected to MongoDB");
     }
   });
-  console.log(`simple node server running on port ${port}`);
+  console.log(`shop-adidas-server running on port ${port}`, "color: red");
 });
+server.listen(5001, () => {
+  console.log(`SOCKET.IO SERVER RUNNING ON PORT 5001`);
+});
+
 // Export the Express API
 module.exports = app;
