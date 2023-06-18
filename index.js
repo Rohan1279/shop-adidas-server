@@ -37,7 +37,7 @@ oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 const drive = google.drive({
   version: "v3",
   // auth: oauth2Client, // with OAuth 2.0
-  auth,  // with service account
+  auth, // with service account
 });
 
 const uploadToGoogle = async (filemetadata, media) => {
@@ -435,6 +435,9 @@ async function run() {
         }
       });
     });
+    // ! SELLER CHAT | SOCKET.IO
+    // make an api to join
+
     // temporary to add property
     // app.get("/addData/stock", async (req, res) => {
     //   const filter = {};
@@ -453,23 +456,31 @@ async function run() {
     // });
 
     // update property value matched with other property name
-    // app.get("/update/color", async (req, res) => {
-    //   const query = {};
-    //   const cursor = adidasSneakers04.find(query);
-    //   const result1 = await cursor.toArray();
-    //   for (const item of result1) {
-    //     const result = await productsCollection.updateOne(
-    //       { productLinkHref: item.productLinkHref },
-    //       {
-    //         $set: {
-    //           color: item.color,
-    //         },
-    //       },
-    //       { upsert: true }
-    //     );
+    // app.get("/update/seller_name", async (req, res) => {
+    //   const query = { seller_email: "adidas@adidas.com" };
+    //   // const cursor = adidasSneakers04.find(query);
+    //   // const result = await cursor.toArray();
+    //   // for (const item of result) {
+    //   //   const result = await productsCollection.updateOne(
+    //   //     { productLinkHref: item.productLinkHref },
+    //   //     {
+    //   //       $set: {
+    //   //         color: item.color,
+    //   //       },
+    //   //     },
+    //   //     { upsert: true }
+    //   //   );
 
-    //   //  console.log(result);
-    //   }
+    //   //   //  console.log(result);
+    //   // }
+    //   const products = await productsCollection.find(query).toArray();
+    //   const result = await productsCollection.updateMany(query, {
+    //     $set: {
+    //       seller_name: "adidas",
+    //     },
+    //   });
+    //   console.log(result);
+    //   res.send(products);
     // });
 
     // renames property name in an object
