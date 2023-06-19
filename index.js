@@ -151,7 +151,9 @@ async function run() {
     const adidasSneakers04 = client
       .db("shop-adidas-db")
       .collection("adidas-sneakers-04");
-
+    const messagesCollection = client
+      .db("shop-adidas-db")
+      .collection("messages");
     const usersCollection = client.db("shop-adidas-db").collection("users");
     const verifySeller = async (req, res, next) => {
       const decodedEmail = req.decoded.email;
@@ -447,18 +449,30 @@ async function run() {
       });
     });
     // ! SELLER CHAT | SOCKET.IO
-    io.on("connection", (socket) => {
+    io.on("connection", async (socket) => {
       // console.log(socket.id);
 
       socket.on("join_room", (data) => {
         socket.join(data);
         console.log(`user with id: ${socket.id} joined room: ${data}`);
       });
-      socket.on("send_message", (data) => {
-        console.log(data);
+      socket.on("send_message", async (data) => {
+        // console.log(data);
+        await messagesCollection.insertOne(data);
+
         // socket.to(data?.room).emit("receive_message", data);
         socket.broadcast.emit("receive_message", data);
       });
+      // socket.on("chat_history", async () => {
+      //   const chats = await messagesCollection.find().toArray();
+      //   console.log(chats);
+      //   socket.emit("chat_history", chats);
+      // });
+      const chats = await messagesCollection.find().toArray();
+      console.log(chats);
+
+      socket.emit("chat_history", chats);
+
       socket.on("disconnect", () => {
         console.log("User disconnected", socket.id);
       });
