@@ -457,20 +457,30 @@ async function run() {
         console.log(`user with id: ${socket.id} joined room: ${data}`);
       });
       socket.on("send_message", async (data) => {
-        // console.log(data);
-        await messagesCollection.insertOne(data);
-
+        console.log(data);
+        // await messagesCollection.insertOne(data);
         // socket.to(data?.room).emit("receive_message", data);
+        const filter = { buyer: data?.buyer, room: data?.room };
+        const option = { upsert: true };
+        const updatedDoc = {
+          $set: {
+            buyer: data?.buyer,
+            buyer_image: data?.buyer_image,
+            seller_image: data?.seller_image,
+            room: data?.room,
+            messages: data?.messages,
+          },
+        };
+        const result = await messagesCollection.updateOne(
+          filter,
+          updatedDoc,
+          option
+        );
         socket.broadcast.emit("receive_message", data);
       });
-      // socket.on("chat_history", async () => {
-      //   const chats = await messagesCollection.find().toArray();
-      //   console.log(chats);
-      //   socket.emit("chat_history", chats);
-      // });
+
       const chats = await messagesCollection.find().toArray();
       console.log(chats);
-
       socket.emit("chat_history", chats);
 
       socket.on("disconnect", () => {
