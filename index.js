@@ -273,6 +273,15 @@ async function run() {
 
       res.send([...products, { count: count?.length }]);
     });
+    app.get("/seller/messages", async (req, res) => {
+      if (req.query.room) {
+        const seller_room = req.query.room;
+        const query = { room: seller_room };
+        const result = await messagesCollection.find(query).toArray();
+        // console.log(result);
+        res.send(result);
+      }
+    });
     // ! POST
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
@@ -452,9 +461,15 @@ async function run() {
     io.on("connection", async (socket) => {
       // console.log(socket.id);
 
-      socket.on("join_room", (data) => {
-        socket.join(data);
-        console.log(`user with id: ${socket.id} joined room: ${data}`);
+      socket.on("join_room", async (room) => {
+        console.log(room);
+        socket.join(room?.room);
+        // console.log(`user with id: ${socket.id} joined room: ${room}`);
+        const chats = await messagesCollection
+          .find({ room: room?.room, buyer: room?.buyer })
+          .toArray();
+        console.log(chats);
+        socket.broadcast.emit("chat_history", chats);
       });
       socket.on("send_message", async (data) => {
         console.log(data);
@@ -476,12 +491,8 @@ async function run() {
           updatedDoc,
           option
         );
-        socket.broadcast.emit("receive_message", data);
+        socket.to(data?.room).emit("receive_message", data);
       });
-
-      const chats = await messagesCollection.find().toArray();
-      console.log(chats);
-      socket.emit("chat_history", chats);
 
       socket.on("disconnect", () => {
         console.log("User disconnected", socket.id);
