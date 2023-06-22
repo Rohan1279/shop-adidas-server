@@ -274,12 +274,20 @@ async function run() {
       res.send([...products, { count: count?.length }]);
     });
     app.get("/seller/messages", async (req, res) => {
-      if (req.query.room) {
-        const seller_room = req.query.room;
-        const query = { room: seller_room };
+      // console.log(req.query.seller);
+      if (req.query.seller) {
+        const query = { seller: req.query.seller };
         const result = await messagesCollection.find(query).toArray();
         // console.log(result);
-        res.send(result);
+        const extractedData = result.map((obj) => {
+          return {
+            _id: obj._id,
+            buyer: obj.buyer,
+            room: obj.room,
+            buyer_image: obj.buyer_image,
+          };
+        });
+        res.send(extractedData);
       }
     });
     // ! POST
@@ -461,20 +469,23 @@ async function run() {
     io.on("connection", async (socket) => {
       // console.log(socket.id);
 
-      socket.on("join_room", async (room) => {
-        console.log(room);
-        socket.join(room?.room);
-        // console.log(`user with id: ${socket.id} joined room: ${room}`);
+      socket.on("join_room", async (data) => {
+        console.log(data); // { room: 'adidas@adidas.com+bipil14415@meidecn.com' }
+        socket.join(data?.room);
+        // // console.log(`user with id: ${socket.id} joined room: ${room}`);
         const chats = await messagesCollection
-          .find({ room: room?.room, buyer: room?.buyer })
+          .find({ room: data?.room })
           .toArray();
-        socket.broadcast.emit("chat_history", chats);
+        console.log(chats);
+        // Send chat history to the joining user
+        socket.emit("chat_history", chats);
+        socket.to(data?.room).emit("chat_history", chats);
       });
       socket.on("send_message", async (data) => {
         console.log(data);
         // await messagesCollection.insertOne(data);
         // socket.to(data?.room).emit("receive_message", data);
-        
+
         const filter = { buyer: data?.buyer, room: data?.room };
         const option = { upsert: true };
         const updatedDoc = {
@@ -491,7 +502,7 @@ async function run() {
           updatedDoc,
           option
         );
-        socket.to(data?.room).emit("receive_message", data);
+        socket.emit("receive_message", data);
       });
 
       socket.on("disconnect", () => {
