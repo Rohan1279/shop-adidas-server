@@ -476,13 +476,13 @@ async function run() {
         const chats = await messagesCollection
           .find({ room: data?.room })
           .toArray();
-        // console.log(chats);
+        console.log(chats);
         // Send chat history to the joining user
         socket.emit("chat_history", chats);
         socket.to(data?.room).emit("chat_history", chats);
       });
       socket.on("send_message", async (data) => {
-        // console.log(data);
+        console.log(data);
         // await messagesCollection.insertOne(data);
         // socket.to(data?.room).emit("receive_message", data);
 
@@ -495,6 +495,7 @@ async function run() {
             seller_image: data?.seller_image,
             room: data?.room,
             messages: data?.messages,
+            seller: data?.seller,
           },
         };
         const result = await messagesCollection.updateOne(
