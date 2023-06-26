@@ -467,20 +467,33 @@ async function run() {
     });
     // ! SELLER CHAT | SOCKET.IO
     io.on("connection", async (socket) => {
-      // console.log(socket.id);
-
-      socket.on("join_room", async (data) => {
+      //! buyer's chat
+      socket.on("join_room/buyer", async (data) => {
         console.log(data); // { room: 'adidas@adidas.com+bipil14415@meidecn.com' }
         socket.join(data?.room);
         // // console.log(`user with id: ${socket.id} joined room: ${room}`);
         const chats = await messagesCollection
           .find({ room: data?.room })
           .toArray();
-        console.log(chats);
+        console.log("");
         // Send chat history to the joining user
-        socket.emit("chat_history", chats);
-        socket.to(data?.room).emit("chat_history", chats);
+        socket.emit("chat_history/buyer", chats);
+        socket.to(data?.room).emit("chat_history/buyer", chats);
       });
+      //! seller's chat
+      socket.on("join_room/seller", async (data) => {
+        console.log(data); // { room: 'adidas@adidas.com+bipil14415@meidecn.com' }
+        socket.join(data?.room);
+        // // console.log(`user with id: ${socket.id} joined room: ${room}`);
+        const chats = await messagesCollection
+          .find({ room: data?.room })
+          .toArray();
+        console.log("");
+        // Send chat history to the joining user
+        socket.emit("chat_history/seller", chats);
+        socket.to(data?.room).emit("chat_history/seller", chats);
+      });
+
       socket.on("send_message", async (data) => {
         console.log(data);
         // await messagesCollection.insertOne(data);
