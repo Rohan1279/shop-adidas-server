@@ -200,16 +200,17 @@ async function run() {
         // isSeller: user?.userRole === "Seller",
       });
     });
-    // app.get("/user", async (req, res) => {
-    //   const email = req.query.email;
-    //   const query = { email };
-    //   const user = await usersCollection.findOne(query);
-    //   if (user) {
-    //     return res.send({ user: user });
-    //   } else {
-    //     res.send({ user: null });
-    //   }
-    // });
+    app.get("/seller/buyerDetail", async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      if (user) {
+        return res.send({ user: user });
+      } else {
+        res.send({ user: null });
+      }
+    });
 
     app.get("/seller_products", async (req, res) => {
       const sortOrder = {};
@@ -469,13 +470,12 @@ async function run() {
     io.on("connection", async (socket) => {
       //! buyer's chat
       socket.on("join_room/buyer", async (data) => {
-        console.log(data); // { room: 'adidas@adidas.com+bipil14415@meidecn.com' }
+        // console.log(data); // { room: 'adidas@adidas.com+bipil14415@meidecn.com' }
         socket.join(data?.room);
         // // console.log(`user with id: ${socket.id} joined room: ${room}`);
         const chats = await messagesCollection
           .find({ room: data?.room })
           .toArray();
-        console.log("");
         // Send chat history to the joining user
         socket.emit("chat_history/buyer", chats);
         socket.to(data?.room).emit("chat_history/buyer", chats);
@@ -516,8 +516,8 @@ async function run() {
           updatedDoc,
           option
         );
-        socket.broadcast.emit("receive_message", data);
-        // socket.to(data?.room).emit("receive_message", data);
+        socket.emit("receive_message", data);
+        socket.to(data?.room).emit("receive_message", data);
       });
 
       socket.on("disconnect", () => {
