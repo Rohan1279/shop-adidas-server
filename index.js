@@ -286,6 +286,7 @@ async function run() {
             buyer: obj.buyer,
             room: obj.room,
             buyer_image: obj.buyer_image,
+            messages: obj.messages[obj.messages.length - 1],
           };
         });
         res.send(extractedData);
