@@ -1,11 +1,11 @@
 const express = require("express");
 const app = express();
-const http = require("https");
+const http = require("http");
 const server = http.createServer(app);
 const socketIo = require("socket.io");
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:5173",
+    // origin: "http://localhost:5173",
     methods: ["GET", "POST"],
     credentials: true,
     allowEIO3: true,
@@ -113,11 +113,11 @@ const corsOptions = {
     "Authorization",
   ],
 };
-app.use(cors(corsOptions));
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  next();
-});
+app.use(cors());
+// app.use((req, res, next) => {
+//   res.setHeader("Access-Control-Allow-Origin", "*");
+//   next();
+// });
 app.use(express.json());
 
 app.get("/", (req, res) => {
