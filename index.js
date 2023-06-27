@@ -8,6 +8,7 @@ const io = socketIo(server, {
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   },
+  transports: ["websocket", "polling", "flashsocket"],
 });
 
 const cors = require("cors");
