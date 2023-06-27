@@ -1,23 +1,32 @@
 const express = require("express");
+const app = express();
+const http = require("http");
+const server = http.createServer(app);
+const socketIo = require("socket.io");
+const io = socketIo(server, {
+  cors: {
+    // origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
+
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const { google } = require("googleapis");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const app = express();
 const port = 5000;
 require("dotenv").config();
 // socket.io
-const http = require("http");
-const { Server } = require("socket.io");
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    // origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-  },
-});
+
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: {
+//     // origin: "http://localhost:5173",
+//     methods: ["GET", "POST"],
+//   },
+// });
 
 const CLIENT_ID =
   "178339055643-f04ij0ii0ars4rq06cnhrncj6a79cfi8.apps.googleusercontent.com";
@@ -586,20 +595,20 @@ async function run() {
 }
 run().catch((err) => console.log(err));
 
-app.listen(port, () => {
-  // after adding mongo db uri
-  client.connect((err) => {
-    if (err) {
-      //catch database error
-      console.log(err);
-    } else {
-      console.log("Connected to MongoDB");
-    }
-  });
-  console.log(`shop-adidas-server running on port ${port}`, "color: red");
-});
-server.listen(5001, () => {
-  console.log(`SOCKET.IO SERVER RUNNING ON PORT 5001`);
+// app.listen(port, () => {
+//   // after adding mongo db uri
+//   client.connect((err) => {
+//     if (err) {
+//       //catch database error
+//       console.log(err);
+//     } else {
+//       console.log("Connected to MongoDB");
+//     }
+//   });
+//   console.log(`shop-adidas-server running on port ${port}`, "color: red");
+// });
+server.listen(port, () => {
+  console.log(`SOCKET.IO SERVER RUNNING ON PORT ${port}`);
 });
 
 // Export the Express API
