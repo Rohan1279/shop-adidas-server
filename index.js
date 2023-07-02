@@ -304,6 +304,25 @@ async function run() {
         res.send(extractedData);
       }
     });
+    app.get("/buyer/messages", async (req, res) => {
+      // console.log(req.query.seller);
+      if (req.query.buyer) {
+        const query = { buyer: req.query.buyer };
+        const result = await messagesCollection.find(query).toArray();
+        // console.log(result);
+        const extractedData = result.map((obj) => {
+          return {
+            _id: obj._id,
+            seller: obj.seller,
+            room: obj.room,
+            seller_image: obj.seller_image,
+            messages: obj.messages[obj.messages.length - 1],
+          };
+        });
+        // console.log(extractedData);
+        res.send(extractedData);
+      }
+    });
     // ! POST
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
