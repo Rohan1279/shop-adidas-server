@@ -521,13 +521,14 @@ async function run() {
           .find({ room: data?.room })
           .toArray();
         console.log("");
+        // console.log(chats);
         // Send chat history to the joining user
         socket.emit("chat_history/seller", chats);
         socket.to(data?.room).emit("chat_history/seller", chats);
       });
 
       socket.on("send_message", async (data) => {
-        console.log(data);
+        // console.log(data);
         // await messagesCollection.insertOne(data);
         // socket.to(data?.room).emit("receive_message", data);
 
@@ -548,12 +549,13 @@ async function run() {
           updatedDoc,
           option
         );
+        // console.log(data);
         socket.emit("receive_message", data);
         socket.to(data?.room).emit("receive_message", data);
       });
 
       socket.on("disconnect", () => {
-        console.log("User disconnected", socket.id);
+        // console.log("User disconnected", socket.id);
       });
     });
 
