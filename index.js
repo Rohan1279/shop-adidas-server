@@ -446,6 +446,89 @@ async function run() {
       // console.log(result);
       res.send(result);
     });
+    // ! BUYERS'S ORDER
+    app.post("/buyer/order", async (req, res) => {
+      const { products, email, name, country, state, city, zip, phone } =
+        req.body;
+      // console.log(products);
+      const getOrderedProducts = async () => {
+        const resultPromises = products.map(async (product) => {
+          const result = await productsCollection.findOne({
+            _id: ObjectId(product._id),
+          });
+          return {
+            ...result,
+            quantity: product.quantity,
+            size: product.size,
+          };
+        });
+
+        const results = await Promise.all(resultPromises);
+        return results;
+      };
+      const orderedProducts = await getOrderedProducts();
+      const totalPrice = orderedProducts.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      );
+      const transactionId = new ObjectId().toString();
+      const data = {
+        total_amount: totalPrice,
+        currency: "USD",
+        tran_id: transactionId, // use unique tran_id for each api call
+        success_url: `http://localhost:5000/payment/success?transactionId=${transactionId}`,
+        fail_url: "http://localhost:5000/payment/fail",
+        cancel_url: "http://localhost:5000/payment/cancel",
+        ipn_url: "http://localhost:3030/ipn",
+        shipping_method: "Courier",
+        product_name: "Computer.",
+        product_category: "Electronic",
+        product_profile: "general",
+        cus_name: name,
+        cus_email: email,
+        cus_add1: "Dhaka",
+        cus_add2: "Dhaka",
+        cus_city: city,
+        cus_state: state,
+        cus_postcode: zip,
+        cus_country: country,
+        cus_phone: phone,
+        cus_fax: "01711111111",
+        ship_name: "Customer Name",
+        ship_add1: "Dhaka",
+        ship_add2: "Dhaka",
+        ship_city: "Dhaka",
+        ship_state: "Dhaka",
+        ship_postcode: 1000,
+        ship_country: "Bangladesh",
+      };
+      const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+      sslcz.init(data).then((apiResponse) => {
+        // Redirect the user to payment gateway
+        let GatewayPageURL = apiResponse.GatewayPageURL;
+        ordersCollection.insertOne({
+          ...req.body,
+          price: totalPrice,
+          transactionId,
+          isPaid: false,
+        });
+        res.send({ url: GatewayPageURL });
+      });
+    });
+    app.post("/payment/success", async (req, res) => {
+      const { transactionId } = req.query;
+      console.log(transactionId);
+      const result = await ordersCollection.updateOne(
+        { transactionId },
+        { $set: { isPaid: true, paidAt: new Date() } }
+      );
+      if (result.modifiedCount > 0) {
+        res.redirect(
+          `http://localhost:5173/payment/success?trnasactionId=${transactionId}`
+        );
+      }
+    });
+
     //! PUT
     app.put("/products", verifyJWT, verifySeller, async (req, res) => {
       const product = req.body;
@@ -566,68 +649,7 @@ async function run() {
         // console.log("User disconnected", socket.id);
       });
     });
-    app.post("/buyer/order", async (req, res) => {
-      const { products, email, name, country, state, city, zip, phone } =
-        req.body;
-      // console.log(products);
-      const getOrderedProducts = async () => {
-        const resultPromises = products.map(async (product) => {
-          const result = await productsCollection.findOne({
-            _id: ObjectId(product._id),
-          });
-          return {
-            ...result,
-            quantity: product.quantity,
-            size: product.size,
-          };
-        });
 
-        const results = await Promise.all(resultPromises);
-        return results;
-      };
-      const orderedProducts = await getOrderedProducts();
-      const totalPrice = orderedProducts.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-      );
-
-      const data = {
-        total_amount: totalPrice,
-        currency: "USD",
-        tran_id: new ObjectId().toString(), // use unique tran_id for each api call
-        success_url: "http://localhost:3030/success",
-        fail_url: "http://localhost:3030/fail",
-        cancel_url: "http://localhost:3030/cancel",
-        ipn_url: "http://localhost:3030/ipn",
-        shipping_method: "Courier",
-        product_name: "Computer.",
-        product_category: "Electronic",
-        product_profile: "general",
-        cus_name: name,
-        cus_email: email,
-        cus_add1: "Dhaka",
-        cus_add2: "Dhaka",
-        cus_city: city,
-        cus_state: state,
-        cus_postcode: zip,
-        cus_country: country,
-        cus_phone: phone,
-        cus_fax: "01711111111",
-        ship_name: "Customer Name",
-        ship_add1: "Dhaka",
-        ship_add2: "Dhaka",
-        ship_city: "Dhaka",
-        ship_state: "Dhaka",
-        ship_postcode: 1000,
-        ship_country: "Bangladesh",
-      };
-      const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
-      sslcz.init(data).then((apiResponse) => {
-        // Redirect the user to payment gateway
-        let GatewayPageURL = apiResponse.GatewayPageURL;
-        res.send({ url: GatewayPageURL });
-      });
-    });
     // temporary to add property
     // app.get("/addData/stock", async (req, res) => {
     //   const filter = {};
