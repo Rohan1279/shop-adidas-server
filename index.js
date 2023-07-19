@@ -683,12 +683,21 @@ async function run() {
     });
 
     // temporary to add property
-    // app.get("/addData/stock", async (req, res) => {
-    //   const filter = {};
+    // app.get("/addData/sizes", async (req, res) => {
+    //   const filter = {
+    //     seller_email: "adidas@adidas.com",
+    //     category: "Men's Pants",
+    //   };
     //   const options = { upsert: true };
     //   const updatedDoc = {
     //     $set: {
-    //       inStock: true,
+    //       sizes: [
+    //         { id: "1", name: "29", stock: "", price: "" },
+    //         { id: "2", name: "30", stock: "", price: "" },
+    //         { id: "3", name: "31", stock: "", price: "" },
+    //         { id: "4", name: "32", stock: "", price: "" },
+    //         { id: "5", name: "34", stock: "", price: "" },
+    //       ],
     //     },
     //   };
     //   const result = await productsCollection.updateMany(
