@@ -331,7 +331,15 @@ async function run() {
         res.send(extractedData);
       }
     });
-    // ! POST
+    //* GET BUYER'S ORDER
+    app.get("/orders/by-transaction-id/:id", async (req, res) => {
+      const { id } = req.params;
+      const query = { transactionId: id };
+      const result = await ordersCollection.findOne(query);
+      res.send(result);
+    });
+
+    //! PUT
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
@@ -409,7 +417,37 @@ async function run() {
         });
       }
     });
-
+    app.put("/products", verifyJWT, verifySeller, async (req, res) => {
+      const product = req.body;
+      const filter = { _id: ObjectId(product._id) };
+      const option = { upsert: true };
+      // console.log(product);
+      const updatedDoc = {
+        $set: {
+          category_id: product.category_id,
+          category: product.category,
+          description: product.description,
+          price: product.price,
+          name: product.name,
+          color: product.color,
+          brand: product.brand,
+          stock: product.stock,
+          promo_price: product.promo_price,
+          sizes: product.sizes,
+          imgId: product.imgId,
+          img: product.img,
+          googleFolderId: product.googleFolderId,
+        },
+      };
+      const result = await productsCollection.updateOne(
+        filter,
+        updatedDoc,
+        // product,
+        option
+      );
+      res.send(result);
+    });
+    //! POST
     app.post("/upload", async (req, res) => {
       let imgUrl = "";
       // console.log(req);
@@ -450,7 +488,18 @@ async function run() {
     app.post("/buyer/order", async (req, res) => {
       const { products, email, name, country, state, city, zip, phone } =
         req.body;
-      // console.log(products);
+      if (
+        !products ||
+        !email ||
+        !name ||
+        !country ||
+        !state ||
+        !city ||
+        !zip ||
+        !phone
+      ) {
+        return res.status(400).send({ message: "Please fill all the fields" });
+      }
       const getOrderedProducts = async () => {
         const resultPromises = products.map(async (product) => {
           const result = await productsCollection.findOne({
@@ -476,9 +525,9 @@ async function run() {
         total_amount: totalPrice,
         currency: "USD",
         tran_id: transactionId, // use unique tran_id for each api call
-        success_url: `http://localhost:5000/payment/success?transactionId=${transactionId}`,
-        fail_url: "http://localhost:5000/payment/fail",
-        cancel_url: "http://localhost:5000/payment/cancel",
+        success_url: `${process.env.SERVER_URL}/payment/success?transactionId=${transactionId}`,
+        fail_url: `${process.env.SERVER_URL}/payment/fail?transactionId=${transactionId}`,
+        cancel_url: `${process.env.SERVER_URL}/payment/cancel`,
         ipn_url: "http://localhost:3030/ipn",
         shipping_method: "Courier",
         product_name: "Computer.",
@@ -517,49 +566,32 @@ async function run() {
     });
     app.post("/payment/success", async (req, res) => {
       const { transactionId } = req.query;
-      console.log(transactionId);
+      if (!transactionId) {
+        return res.redirect(`${process.env.CLIENT_URL}/payment/fail`);
+      }
       const result = await ordersCollection.updateOne(
         { transactionId },
         { $set: { isPaid: true, paidAt: new Date() } }
       );
       if (result.modifiedCount > 0) {
         res.redirect(
-          `http://localhost:5173/payment/success?trnasactionId=${transactionId}`
+          `${process.env.CLIENT_URL}/payment/success?transactionId=${transactionId}`
+        );
+      }
+    });
+    app.post("/payment/fail", async (req, res) => {
+      const { transactionId } = req.query;
+      if (!transactionId) {
+        return res.redirect(`${process.env.CLIENT_URL}/payment/fail`);
+      }
+      const result = await ordersCollection.deleteOne({ transactionId });
+      if (result.deletedCount) {
+        res.redirect(
+          `${process.env.CLIENT_URL}/payment/fail?transactionId=${transactionId}`
         );
       }
     });
 
-    //! PUT
-    app.put("/products", verifyJWT, verifySeller, async (req, res) => {
-      const product = req.body;
-      const filter = { _id: ObjectId(product._id) };
-      const option = { upsert: true };
-      // console.log(product);
-      const updatedDoc = {
-        $set: {
-          category_id: product.category_id,
-          category: product.category,
-          description: product.description,
-          price: product.price,
-          name: product.name,
-          color: product.color,
-          brand: product.brand,
-          stock: product.stock,
-          promo_price: product.promo_price,
-          sizes: product.sizes,
-          imgId: product.imgId,
-          img: product.img,
-          googleFolderId: product.googleFolderId,
-        },
-      };
-      const result = await productsCollection.updateOne(
-        filter,
-        updatedDoc,
-        // product,
-        option
-      );
-      res.send(result);
-    });
     //! DELETE
     app.delete(
       "/seller_products/delete",
