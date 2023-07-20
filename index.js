@@ -683,30 +683,31 @@ async function run() {
     });
 
     // temporary to add property
-    // app.get("/addData/sizes", async (req, res) => {
-    //   const filter = {
-    //     seller_email: "adidas@adidas.com",
-    //     category: "Men's Pants",
-    //   };
-    //   const options = { upsert: true };
-    //   const updatedDoc = {
-    //     $set: {
-    //       sizes: [
-    //         { id: "1", name: "29", stock: "", price: "" },
-    //         { id: "2", name: "30", stock: "", price: "" },
-    //         { id: "3", name: "31", stock: "", price: "" },
-    //         { id: "4", name: "32", stock: "", price: "" },
-    //         { id: "5", name: "34", stock: "", price: "" },
-    //       ],
-    //     },
-    //   };
-    //   const result = await productsCollection.updateMany(
-    //     filter,
-    //     updatedDoc,
-    //     options
-    //   );
-    //   res.send(result);
-    // });
+    app.get("/addData/sizes", async (req, res) => {
+      const filter = {
+        category: "Outdoor & Hiking"
+      };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          sizes: [
+            { id: "0", name: "XS", stock: "", price: "" },
+            { id: "1", name: "S", stock: "", price: "" },
+            { id: "2", name: "M", stock: "", price: "" },
+            { id: "3", name: "L", stock: "", price: "" },
+            { id: "4", name: "XL", stock: "", price: "" },
+            { id: "5", name: "2XL", stock: "", price: "" },
+            { id: "6", name: "3XL", stock: "", price: "" },
+          ],
+        },
+      };
+      const result = await productsCollection.updateMany(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
 
     // update property value matched with other property name
     // app.get("/update/seller_name", async (req, res) => {
