@@ -685,7 +685,7 @@ async function run() {
     // temporary to add property
     app.get("/addData/sizes", async (req, res) => {
       const filter = {
-        category: "Outdoor & Hiking"
+        category: "Outdoor & Hiking",
       };
       const options = { upsert: true };
       const updatedDoc = {
@@ -744,6 +744,23 @@ async function run() {
     //     { $rename: { "product-link-href": "productLinkHref" } }
     //   );
     //   console.log(result);
+    //   res.send(result);
+    // });
+    // app.delete("/products/mens-sneakers", async (req, res) => {
+    //   try {
+    //     const result = await productsCollection.deleteMany({
+    //       category: "Men's Sneakers",
+    //     });
+    //     res.send(`${result.deletedCount} products deleted`);
+    //   } catch (error) {
+    //     console.error(error);
+    //     res.status(500).send("Internal Server Error");
+    //   }
+    // });
+    // app.post("/products/mens-sneaker", async (req, res) => {
+    //   const products = req.body;
+    //   const result = await productsCollection.insertMany(products);
+    //   // console.log(result);
     //   res.send(result);
     // });
   } finally {
