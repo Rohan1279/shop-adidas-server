@@ -338,6 +338,14 @@ async function run() {
       const result = await ordersCollection.findOne(query);
       res.send(result);
     });
+    app.get("/featured", async (req, res) => {
+      const query = {
+        category: "T-Shirts & Tops",
+        seller_email: "adidas@adidas.com",
+      };
+      const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    });
 
     //! PUT
     app.put("/user/:email", async (req, res) => {
